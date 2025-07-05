@@ -4,12 +4,16 @@ export type GameState = {
   score: number
   level: number
   threshold: number
+  workers: number
+  workerCost: number
 }
 
 const initialState: GameState = {
   score: 0,
   level: 1,
   threshold: 10,
+  workers: 0,
+  workerCost: 10,
 }
 
 const gameSlice = createSlice({
@@ -24,11 +28,18 @@ const gameSlice = createSlice({
         state.threshold = Math.round(state.threshold * 1.5)
       }
     },
+    buyWorker: (state) => {
+      if (state.score >= state.workerCost) {
+        state.score -= state.workerCost
+        state.workers += 1
+        state.workerCost = Math.round(state.workerCost * 1.5)
+      }
+    },
     reset: () => initialState,
   },
 })
 
-export const { addScore, reset } = gameSlice.actions
+export const { addScore, buyWorker, reset } = gameSlice.actions
 
 export const store = configureStore({
   reducer: {

@@ -2,11 +2,16 @@
 
 import { useDispatch, useSelector } from 'react-redux'
 import { Animated, View, Text, StyleSheet, Touchable } from 'react-bits'
-import { addScore, RootState } from '@/lib/store'
+import { addScore, buyWorker, RootState } from '@/lib/store'
+import { useInterval } from '@/hooks/use-interval'
 
 export default function GamePage() {
   const dispatch = useDispatch()
-  const { score, level, threshold } = useSelector((state: RootState) => state.game)
+  const { score, level, threshold, workers, workerCost } = useSelector(
+    (state: RootState) => state.game,
+  )
+
+  useInterval(() => dispatch(addScore(workers)), 1000)
 
   return (
     <View style={styles.container}>
@@ -16,7 +21,17 @@ export default function GamePage() {
           <Text style={styles.buttonText}>Gather</Text>
         </Animated.View>
       </Touchable>
+      <Touchable
+        onPress={() => dispatch(buyWorker())}
+        style={[styles.button, score < workerCost && styles.disabled]}
+        disabled={score < workerCost}
+      >
+        <Animated.View style={styles.inner}>
+          <Text style={styles.buttonText}>Hire Worker ({workerCost})</Text>
+        </Animated.View>
+      </Touchable>
       <Text style={styles.info}>Score: {score}</Text>
+      <Text style={styles.info}>Workers: {workers}</Text>
       <Text style={styles.info}>Level: {level}</Text>
       <Text style={styles.info}>Next level at: {threshold}</Text>
     </View>
@@ -40,6 +55,9 @@ const styles = StyleSheet.create({
     borderColor: '#444',
     padding: 10,
     borderRadius: 8,
+  },
+  disabled: {
+    opacity: 0.5,
   },
   inner: {
     padding: 10,
